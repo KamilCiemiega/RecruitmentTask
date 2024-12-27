@@ -5,8 +5,6 @@ function solution1(expenses) {
         year: key.slice(0, 4), 
         month: key.slice(5)
     }));
-    
-    console.log("monthDayArr:", monthDayArr);
 
     const firstSundaysArr = monthDayArr.map((value) => {
         const firstDay = new Date(value.year, value.month - 1, 1);
@@ -21,17 +19,14 @@ function solution1(expenses) {
             firstSunday: firstSunday.getDate()
         };
     });
-
-    console.log("firstSundaysArr:", firstSundaysArr);
+    const allExpenses = [];
 
     const sundaysExpensesArr = Object.entries(expenses).map(([month, days]) => {
         const firstSundayInfo = firstSundaysArr.find(elem => elem.yearMonth === month);
         const firstSundayDay = firstSundayInfo ? firstSundayInfo.firstSunday : null;
 
-        console.log(month + days)
-
         if (!firstSundayDay) {
-            console.log(`Brak pierwszej niedzieli dla miesiąca: ${month}`);
+            console.log(`Missing first Sunday for the month: ${month}`);
             return null;
         }
 
@@ -39,19 +34,32 @@ function solution1(expenses) {
             .filter(day => parseInt(day) <= firstSundayDay)
             .map(day => days[day]);
 
+
         const expensesToSunday = filteredDays.reduce((acc, dayObj) => {
             Object.values(dayObj).forEach(category => acc.push(...category));
             return acc;
         }, []);
 
+        allExpenses.push(...expensesToSunday);
+
         return expensesToSunday;
     });
 
-    console.log("sundaysExpensesArr:", sundaysExpensesArr);
-    return sundaysExpensesArr;
+    const sortedExpenses = allExpenses.sort((a, b) => a - b);
+
+    const n = sortedExpenses.length;
+    if (n === 0) {
+        return null;
+    }
+    const median = n % 2 === 0
+        ? (sortedExpenses[n / 2 - 1] + sortedExpenses[n / 2]) / 2
+        : sortedExpenses[Math.floor(n / 2)];
+
+    return median;
+    
 }
 
-document.getElementById("oblicz").addEventListener("click", function () {
+document.getElementById("calculate").addEventListener("click", function () {
     const result = solution1(expenses);
-    console.log("Wynik:", result);
+    console.log("Results:", result);
 });
